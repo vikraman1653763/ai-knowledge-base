@@ -1,4 +1,4 @@
-import type { AskResponse, SearchResponse, UploadResponse } from '../types'
+import type { AskResponse, KnowledgeDocument, SearchResponse, UploadResponse } from '../types'
 
 const API_BASE_URL = (import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000').replace(/\/$/, '')
 
@@ -30,6 +30,19 @@ export async function uploadPdf(file: File): Promise<UploadResponse> {
   const body = new FormData()
   body.append('file', file)
   return request<UploadResponse>('/upload', { method: 'POST', body })
+}
+
+export async function listDocuments(): Promise<KnowledgeDocument[]> {
+  const response = await request<{ documents: KnowledgeDocument[] }>('/documents')
+  return response.documents
+}
+
+export async function deleteDocument(filename: string): Promise<void> {
+  await request<{ filename: string; deleted_chunks: number }>('/documents', {
+    method: 'DELETE',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ filename }),
+  })
 }
 
 export async function askQuestion(question: string, topK: number, source?: string): Promise<AskResponse> {

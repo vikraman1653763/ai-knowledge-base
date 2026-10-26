@@ -46,40 +46,35 @@ export default function UploadPanel({ onUploaded }: UploadPanelProps) {
   }
 
   return (
-    <section className="panel upload-panel" id="documents">
-      <div className="panel-heading">
+    <section className="rounded-[13px] border border-[#ebebf4] bg-white p-[19px]" id="documents">
+      <div className="mb-[19px] flex items-center justify-between">
         <div>
-          <p className="eyebrow">YOUR LIBRARY</p>
-          <h2>Knowledge sources</h2>
+          <p className="mb-[7px] text-[10px] font-bold tracking-[1.35px] text-[#a0a1b4]">YOUR LIBRARY</p>
+          <h2 className="m-0 font-heading text-sm font-bold tracking-[-.3px] text-[#37384d]">Knowledge sources</h2>
         </div>
-        <span className="heading-icon"><FilesIcon /></span>
+        <span className="grid size-[31px] place-items-center rounded-[9px] bg-[#f0eeff] text-[#8174e7]"><FilesIcon /></span>
       </div>
       <div
-        className={`dropzone ${dragging ? 'dragging' : ''} ${busy ? 'uploading' : ''}`}
+        className={`flex min-h-[173px] flex-col items-center justify-center rounded-[11px] border border-dashed border-[#d8d5f0] bg-[#fcfbff] px-[10px] pb-[15px] pt-5 transition ${dragging ? 'border-[#7061e8] bg-[#f3f1ff]' : ''} ${busy ? 'opacity-75' : ''}`}
         onDragOver={(event) => { event.preventDefault(); setDragging(true) }}
         onDragLeave={() => setDragging(false)}
         onDrop={handleDrop}
       >
-        <input ref={inputRef} className="visually-hidden" type="file" accept="application/pdf,.pdf" onChange={handleInput} />
-        <div className="upload-symbol">{busy ? <LoaderCircle className="spin" size={23} /> : <UploadCloud size={23} />}</div>
-        <strong>{busy ? 'Processing your PDF…' : 'Drop a PDF here'}</strong>
-        <span>or <button className="text-button" onClick={() => inputRef.current?.click()} disabled={busy}>browse files</button></span>
-        <small>PDF files only</small>
+        <input ref={inputRef} id="pdf-upload-input" className="sr-only" type="file" accept="application/pdf,.pdf" onChange={handleInput} />
+        <div className="mb-3 grid size-[42px] place-items-center rounded-[13px] bg-[#eeecff] text-[#7061e8]">{busy ? <LoaderCircle className="animate-spin" size={23} /> : <UploadCloud size={23} />}</div>
+        <strong className="mb-[7px] text-[11px] text-[#505168]">{busy ? 'Processing your PDF…' : 'Drop a PDF here'}</strong>
+        <span className="text-[10px] text-[#9b9caf]">or <button className="border-0 bg-transparent p-0 text-inherit font-bold text-[#7061e8]" onClick={() => inputRef.current?.click()} disabled={busy}>browse files</button></span>
+        <small className="mt-3 text-[9px] text-[#b0b1bf]">PDF files only</small>
       </div>
 
-      {error && <div className="inline-alert error-alert"><X size={16} /><span>{error}</span></div>}
+      {error && <div className="mt-3 flex items-start gap-2 wrap-anywhere rounded-[9px] border border-[#ffe0e3] bg-[#fff1f2] px-[11px] py-[10px] text-[10px] leading-[1.6] text-[#b64a5b]"><X size={16} /><span>{error}</span></div>}
       {success && (
-        <div className="inline-alert success-alert">
+        <div className="mt-3 flex items-start gap-2 overflow-wrap-anywhere rounded-[9px] border border-[#d6f2e4] bg-[#effaf5] px-[11px] py-[10px] text-[10px] leading-[1.6] text-[#328464]">
           <CheckCircle2 size={17} />
-          <div><strong>{success.filename}</strong><span>{success.pages} pages · {success.chunks} chunks indexed</span></div>
-          <button className="icon-button small" aria-label="Dismiss upload message" onClick={() => setSuccess(null)}><X size={15} /></button>
+          <div className="grid min-w-0 flex-1 gap-[3px]"><strong className="wrap-anywhere text-[10px]">{success.filename}</strong><span className="text-[9px] text-[#6c9d88]">{success.total_pages} pages · {success.total_chunks} chunks indexed</span></div>
+          <button className="relative inline-grid place-items-center rounded-lg border-0 bg-transparent p-[2px] text-[#85869b] hover:bg-[#f4f3ff] hover:text-[#7061e8]" aria-label="Dismiss upload message" onClick={() => setSuccess(null)}><X size={15} /></button>
         </div>
       )}
-
-      <div className="library-empty">
-        <div className="empty-file-icon"><FileText size={19} /></div>
-        <div><strong>Ready to build your library</strong><p>Upload a PDF to make its contents searchable.</p></div>
-      </div>
     </section>
   )
 }

@@ -1,10 +1,17 @@
 export interface UploadResponse {
   filename: string
-  pages: number
-  chunks: number
-  deleted_chunks?: number
-  total_chunks?: number
+  total_pages: number
+  total_chunks: number
+  stored_chunks: number
+  deleted_stale_chunks: number
+  collection_count: number
   message?: string
+}
+
+export interface KnowledgeDocument {
+  filename: string
+  pages: number | null
+  chunks: number
 }
 
 export interface SourceChunk {

@@ -135,6 +135,7 @@ async def upload_pdf(file: UploadFile = File(...)):
             "page": chunk["page"],
             "source": file.filename,
             "chunk_index": chunk["chunk_index"],
+            "total_pages": len(reader.pages),
         }
         for chunk in chunks
     ]
@@ -175,6 +176,62 @@ async def upload_pdf(file: UploadFile = File(...)):
         "stored_chunks": len(ids),
         "deleted_stale_chunks": len(stale_ids),
         "collection_count": collection.count(),
+    }
+
+
+@app.get("/documents")
+def list_documents():
+    stored = collection.get(include=["metadatas"])
+    grouped_documents = {}
+
+    for metadata in stored["metadatas"]:
+        if not metadata or not metadata.get("source"):
+            continue
+
+        filename = metadata["source"]
+        document = grouped_documents.setdefault(
+            filename,
+            {"filename": filename, "pages": None, "chunks": 0},
+        )
+        document["chunks"] += 1
+        total_pages = metadata.get("total_pages")
+        if total_pages is not None:
+            document["pages"] = max(document["pages"] or 0, total_pages)
+
+    return {
+        "documents": sorted(
+            grouped_documents.values(),
+            key=lambda document: document["filename"].casefold(),
+        )
+    }
+
+
+class DeleteDocumentRequest(BaseModel):
+    filename: str
+
+
+@app.delete("/documents")
+def delete_document(request: DeleteDocumentRequest):
+    filename = request.filename
+    if not filename.strip():
+        raise HTTPException(
+            status_code=400,
+            detail="Document filename cannot be empty.",
+        )
+
+    document = collection.get(where={"source": filename})
+    if not document["ids"]:
+        raise HTTPException(
+            status_code=404,
+            detail="Document not found.",
+        )
+
+    deleted_chunks = len(document["ids"])
+    collection.delete(where={"source": filename})
+
+    return {
+        "filename": filename,
+        "deleted_chunks": deleted_chunks,
     }
 
 
